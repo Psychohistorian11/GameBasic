@@ -39,7 +39,8 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         //entrada del teclas para realizar una acción
-        if (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0)) //Barra Espaciadora - Clicl Izquierdo
+        
+        if (Input.GetButtonDown("Jump")) //Barra Espaciadora - Clicl Izquierdo
             {
             /*se llama al metodo saltar(Jump) que es la acción respectiva que realizaran esas
             dos teclas*/
@@ -68,10 +69,17 @@ public class PlayerController : MonoBehaviour
     void process_motion()
     {
         //logica de movimiento.
-        float inputMovimiento = Input.GetAxis("Horizontal");
-        playerrigidbody.velocity = new Vector2(inputMovimiento * runningSpeed, playerrigidbody.velocity.y);
+        if (GameManager.sharedInstance.currentGameState == GameState.inGame) //Si el juego esta "inGame" se realiza la logica de movimiento
+        {
+            float inputMovimiento = Input.GetAxis("Horizontal");
+            playerrigidbody.velocity = new Vector2(inputMovimiento * runningSpeed, playerrigidbody.velocity.y);
 
-        manage_orientation(inputMovimiento);
+            manage_orientation(inputMovimiento);
+        }
+        else
+        {
+            playerrigidbody.velocity = new Vector2(0,playerrigidbody.velocity.y);
+        }
     }
 
 
@@ -90,9 +98,13 @@ public class PlayerController : MonoBehaviour
     void Jump()
 
     {
-        if (IsTouchingTheGround())
+        if (GameManager.sharedInstance.currentGameState == GameState.inGame)//Si el juego esta "inGame" se realiza la logica de salto
         {
-            playerrigidbody.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+
+            if (IsTouchingTheGround())
+            {
+                playerrigidbody.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+            }
         }
     }
     //Nos indica si el personaje esta tocando o no el suelo.
@@ -107,5 +119,11 @@ public class PlayerController : MonoBehaviour
             return false;
         }
      
+    }
+
+    public void Die()
+    {
+        this.animator.SetBool(STATE_ALIVE, false);
+        GameManager.sharedInstance.GameOver();
     }
 }
