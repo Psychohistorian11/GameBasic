@@ -13,6 +13,7 @@ public class PlayerController : MonoBehaviour
     public float jumpForce = 6f;
   //public float runningSpeed_right = 2f;
     public float runningSpeed = 4f;
+    Vector3 startPosition;
     private bool looking_right = true;
     Rigidbody2D playerrigidbody;
     public LayerMask groundMask;
@@ -31,8 +32,21 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         //Inicializar las variables al inicio del juego
+        
+        startPosition= this.transform.position;
+    }
+
+    public void StartGame()
+    {
         animator.SetBool(STATE_ALIVE, true);
         animator.SetBool(STATE_ON_THE_GROUND, true);
+        Invoke("RestartPosition", 0.7f);
+    }
+
+    void RestartPosition()
+    {
+        this.transform.position = startPosition;
+        this.playerrigidbody.velocity = Vector2.zero;
     }
 
     // Update is called once per frame
@@ -53,7 +67,7 @@ public class PlayerController : MonoBehaviour
         animator.SetBool(STATE_ON_THE_GROUND, IsTouchingTheGround());
 
         //rayo que va desde el centro del personaje al suelo
-        Debug.DrawRay(this.transform.position, Vector2.down * 1.8f, Color.red);
+        Debug.DrawRay(this.transform.position, Vector2.down * 1.5f, Color.red);
     }
     // Creación de movimiento
     /*void FixedUpdate()

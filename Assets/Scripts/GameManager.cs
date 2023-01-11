@@ -16,6 +16,8 @@ public class GameManager : MonoBehaviour
     public GameState currentGameState = GameState.menu;
     // Start is called before the first frame update
 
+    private PlayerController controller; 
+
     void Awake()
     {
         if (sharedInstance == null)
@@ -26,21 +28,21 @@ public class GameManager : MonoBehaviour
     }
     void Start()
     {
-        
+        controller = GameObject.Find("Player").GetComponent<PlayerController>();
     }
 
     // Update is called once per frame
     void Update() 
     {
-        if (Input.GetButtonDown("Submit"))//si se oprime la tecla "Enter" se iniciara el juego
+        if (Input.GetButtonDown("Submit") && currentGameState != GameState.inGame)//si se oprime la tecla "Enter" se iniciara el juego
         {
-            StarGame();
+            StartGame();
         }
 
     }
 
     //Metodo para iniciar el juego
-    public void StarGame()
+    public void StartGame()
     {
         SetGameState(GameState.inGame); //Inica el juego
     }
@@ -65,6 +67,7 @@ public class GameManager : MonoBehaviour
         } else if(newGameSatate == GameState.inGame)
         {
             //TODO: logic de la partida
+            controller.StartGame();
         } else if(newGameSatate == GameState.gameOver)
         {
             //TODO: Game over
