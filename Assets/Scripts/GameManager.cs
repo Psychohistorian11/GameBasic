@@ -67,7 +67,9 @@ public class GameManager : MonoBehaviour
         } else if(newGameSatate == GameState.inGame)
         {
             //TODO: logic de la partida
-            controller.StartGame();
+            LevelManager.sharedInstance.RemoveAllLevelBlock(); //Se borran todos los antiguas bloques 
+            Invoke("RealodLevel", 0.1f); //Retrasar por un momento dichas acciones 
+
         } else if(newGameSatate == GameState.gameOver)
         {
             //TODO: Game over
@@ -76,5 +78,13 @@ public class GameManager : MonoBehaviour
         this.currentGameState= newGameSatate;
     }
 
-    
+    void RealodLevel()
+    {
+        LevelManager.sharedInstance.GenerateInitialBLock();//se crean los primeros bloques tras el reinicio
+
+        controller.StartGame(); //El personaje tras iniciaro reiniciar
+                                //la partida vuelve a jugar 
+    }
+
+
 }
