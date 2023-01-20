@@ -16,7 +16,9 @@ public class GameManager : MonoBehaviour
     public GameState currentGameState = GameState.menu;
     // Start is called before the first frame update
 
-    private PlayerController controller; 
+    private PlayerController controller;
+
+    public int collectedObject = 0;
 
     void Awake()
     {
@@ -63,16 +65,23 @@ public class GameManager : MonoBehaviour
     {
         if(newGameSatate == GameState.menu)
         {
+            MenuCanvasManager.sharedInstance.ShowMainMenu();
+            MenuCanvasManager.sharedInstance.HideMainGame();
+            MenuCanvasManager.sharedInstance.HideMainGameOver();
             //TODO: logica del menú
         } else if(newGameSatate == GameState.inGame)
         {
             //TODO: logic de la partida
+            MenuCanvasManager.sharedInstance.ShowMainGame();
             LevelManager.sharedInstance.RemoveAllLevelBlock(); //Se borran todos los antiguas bloques 
             Invoke("RealodLevel", 0.1f); //Retrasar por un momento dichas acciones 
 
         } else if(newGameSatate == GameState.gameOver)
         {
             //TODO: Game over
+            MenuCanvasManager.sharedInstance.HideMainGame();
+            MenuCanvasManager.sharedInstance.HideMainMenu();
+            MenuCanvasManager.sharedInstance.ShowMainGameOver();
         }
 
         this.currentGameState= newGameSatate;
@@ -84,6 +93,14 @@ public class GameManager : MonoBehaviour
 
         controller.StartGame(); //El personaje tras iniciaro reiniciar
                                 //la partida vuelve a jugar 
+
+        MenuCanvasManager.sharedInstance.HideMainMenu();
+        MenuCanvasManager.sharedInstance.HideMainGameOver();
+    }
+
+    public void CollectObject( collectable collectableType)
+    {
+        collectedObject += collectableType.value;
     }
 
 
