@@ -19,8 +19,17 @@ public class PlayerController : MonoBehaviour
     public LayerMask groundMask;
     Animator animator;
 
+    private int healtPoints, manaPoints;
+
     private const string STATE_ALIVE = "IsALive";
     private const string STATE_ON_THE_GROUND = "isOnTheGround";
+
+    public const int INITAL_HEALTH = 100, INITAL_MANA = 15,
+        MAX_HEALTH = 200, MAX_MANA = 30, MIN_HEALTH = 10,
+        MIN_MANA = 0;
+
+    public const int SUPERJUMP_COST = 5;
+    public const float SUPERJUMP_FORCE = 1.5f;
 
     // Start is called before the first frame update
     void Awake()
@@ -40,6 +49,10 @@ public class PlayerController : MonoBehaviour
     {
         animator.SetBool(STATE_ALIVE, true);
         animator.SetBool(STATE_ON_THE_GROUND, true);
+
+        healtPoints = INITAL_HEALTH;
+        manaPoints = INITAL_MANA;
+        
         Invoke("RestartPosition", 0.7f);
     }
 
@@ -61,8 +74,13 @@ public class PlayerController : MonoBehaviour
             {
             /*se llama al metodo saltar(Jump) que es la acción respectiva que realizaran esas
             dos teclas*/
-            Jump();
+            Jump(false);
             }
+        if (Input.GetButtonDown("SuperJump"))
+            {
+                Jump(true);
+            }
+
 
         process_motion();
 
@@ -112,15 +130,21 @@ public class PlayerController : MonoBehaviour
             
     }
 
-    void Jump()
-
+    void Jump(bool superjump)
     {
+        float jumpForceFactor = jumpForce;
+
+        if (superjump&&manaPoints >= SUPERJUMP_COST)
+        {
+            manaPoints -= SUPERJUMP_COST;
+            jumpForceFactor *= SUPERJUMP_FORCE;
+        }
         if (GameManager.sharedInstance.currentGameState == GameState.inGame)//Si el juego esta "inGame" se realiza la logica de salto
         {
 
             if (IsTouchingTheGround())
             {
-                playerrigidbody.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+                playerrigidbody.AddForce(Vector2.up * jumpForceFactor, ForceMode2D.Impulse);
             }
         }
     }
@@ -140,7 +164,47 @@ public class PlayerController : MonoBehaviour
 
     public void Die()
     {
+
+        float travelledDistance = GetTravelledDistance();
+        float previousMaxDistance = PlayerPrefs.GetFloat("maxscore", 0f);
+        if(travelledDistance > previousMaxDistance)
+        {
+            PlayerPrefs.SetFloat("maxscore", travelledDistance);
+        }
         this.animator.SetBool(STATE_ALIVE, false);
         GameManager.sharedInstance.GameOver();
+    }
+
+    public void CollectHealth(int points)
+    {
+        this.healtPoints += points;
+        if(this.healtPoints >= MAX_HEALTH)
+        {
+            this.healtPoints = MAX_HEALTH;
+        }
+    }
+
+    public void CollectMana(int points)
+    {
+        this.manaPoints += points;
+        if(this.manaPoints >= MAX_MANA)
+        {
+            this.manaPoints = MAX_MANA;
+        }
+    }
+
+    public int GetHealt()
+    {
+        return healtPoints;
+    }
+
+    public int GetMana()
+    {
+        return manaPoints;
+    }
+
+    public float GetTravelledDistance()
+    {
+        return this.transform.position.x - startPosition.x;
     }
 }
